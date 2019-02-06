@@ -1,12 +1,15 @@
 """Utility file to seed ratings database from MovieLens data in seed_data/"""
 
 from sqlalchemy import func
+# load our table-making classes
 from model import User
-# from model import Rating
-# from model import Movie
+from model import Rating
+from model import Movie
 
 from model import connect_to_db, db
 from server import app
+# for datetime parsing
+from datetime import datetime
 
 
 def load_users():
@@ -36,6 +39,34 @@ def load_users():
 
 def load_movies():
     """Load movies from u.item into database."""
+
+    print("Movies")
+
+    # Delete all rows in table, so if we need to run this a second time,
+    # we won't be trying to add duplicate users
+    Movie.query.delete()
+
+
+    for row in open("seed_data/u.item"):
+        row = row.rstrip()
+        movie_id, title, released_at, imdb_url = row.split("|")
+        # In the u.item file, the dates are given as strings like “31-Oct-2015”. 
+        # We need to store this in the database as an actual date object, 
+        # not as a string that just looks like a date. To do this, we’ll need to
+        # research the Python datetime library to find the function that can 
+        # parse a string into a datetime object.
+        released_at = datetime.strptime(released_at, "%d-%m-%Y")
+
+        movie = Movie(movie_id=movie_id,
+                    title=title,
+                    released_at=released_at,
+                    imdb_url=imdb_url)
+
+        # We need to add to the session or it won't ever be stored
+        db.session.add(movie)
+
+    # Once we're done, we should commit our work
+    db.session.commit()
 
 
 def load_ratings():
