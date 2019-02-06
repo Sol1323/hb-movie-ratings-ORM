@@ -23,8 +23,30 @@ class User(db.Model):
     age = db.Column(db.Integer, nullable=True)
     zipcode = db.Column(db.String(15), nullable=True)
 
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return f"<User user_id={self.user_id} email={self.email}>" # pyflakes does not like f-string; it prefers .format()
+
 
 # Put your Movie and Rating model classes here.
+class Movie(db.Model):
+
+    __tablename__ = "movies"
+
+    movie_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    title = db.Column(db.String(180), nullable=False)
+    released_at = db.Column(db.DateTime, nullable=True)
+    imdb_url = db.Column(db.String(1000), nullable=False)
+
+class Rating(db.Model):
+
+    __tablename__ = "ratings"
+
+    rating_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    movie_id = db.Column(db.Integer, nullable=False, unique=True)
+    user_id = db.Column(db.Integer, nullable=False, unique=True)
+    score = db.Column(db.Integer, nullable=False)
 
 
 ##############################################################################
