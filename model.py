@@ -42,7 +42,7 @@ class Movie(db.Model):
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return f"<User movie_id={self.movie_id} title={self.title} released_at={self.released_at}>"
+        return f"<Movie movie_id={self.movie_id} title={self.title} released_at={self.released_at} imdb_url={self.imdb_url}>"
 
 class Rating(db.Model):
 
@@ -58,7 +58,7 @@ class Rating(db.Model):
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return f"<User rating_id={self.rating_id} user_id={self.user_id} score={self.score}>"
+        return f"<Rating rating_id={self.rating_id} movie_id={self.movie_id} user_id={self.user_id} score={self.score}>"
 
 
 ##############################################################################
