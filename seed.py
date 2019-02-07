@@ -2,17 +2,13 @@
 
 from sqlalchemy import func
 # load our table-making classes
-from model import User
-from model import Rating
-from model import Movie
-
-from model import connect_to_db, db
+from model import User, Rating, Movie, connect_to_db, db
 from server import app
 # for datetime parsing
 from datetime import datetime
 
 
-def load_users():
+def load_users(user_filename):
     """Load users from u.user into database."""
 
     print("Users")
@@ -22,22 +18,26 @@ def load_users():
     User.query.delete()
 
     # Read u.user file and insert data
-    for row in open("seed_data/u.user"):
+    # argument: seed_data/u.user
+    for i, row in enumerate(open(user_filename)):
         row = row.rstrip()
         user_id, age, gender, occupation, zipcode = row.split("|")
 
-        user = User(user_id=user_id,
-                    age=age,
+        user = User(age=age,
                     zipcode=zipcode)
 
         # We need to add to the session or it won't ever be stored
         db.session.add(user)
 
+                # provide some sense of progress
+        if i % 100 == 0:
+            print(i)
+
     # Once we're done, we should commit our work
     db.session.commit()
 
 
-def load_movies():
+def load_movies(movie_filename):
     """Load movies from u.item into database."""
 
     print("Movies")
@@ -46,33 +46,83 @@ def load_movies():
     # we won't be trying to add duplicate users
     Movie.query.delete()
 
-
-    for row in open("seed_data/u.item"):
+    # Read u.item file and insert data
+    # seed_data/u.item
+    for i, row in enumerate(open(movie_filename)):
         row = row.rstrip()
-        movie_id, title, released_at, imdb_url = row.split("|")
+        movie_id, title, released_at, junk, imdb_url = row.split("|")[:5]
         # In the u.item file, the dates are given as strings like “31-Oct-2015”. 
         # We need to store this in the database as an actual date object, 
         # not as a string that just looks like a date. To do this, we’ll need to
         # research the Python datetime library to find the function that can 
         # parse a string into a datetime object.
-        released_at = datetime.strptime(released_at, "%d-%m-%Y")
+        if released_at:
+            released_at = datetime.strptime(released_at, "%d-%b-%Y")
+        else:
+            released_at = None
 
-        movie = Movie(movie_id=movie_id,
-                    title=title,
+        # create for loop to remove date in movie title
+
+        # define function
+        title = title[:-7]
+
+        movie = Movie(title=title,
                     released_at=released_at,
                     imdb_url=imdb_url)
 
         # We need to add to the session or it won't ever be stored
         db.session.add(movie)
 
+        # provide some sense of progress
+        if i % 100 == 0:
+            print(i)
+
     # Once we're done, we should commit our work
     db.session.commit()
 
 
-def load_ratings():
+def load_ratings(rating_filename):
     """Load ratings from u.data into database."""
 
+    print("Ratings")
 
+    for i, row in enumerate(open(rating_filename)):
+        row = row.rstrip()
+
+        user_id, movie_id, score, timestamp = row.split("\t")
+
+        user_id = int(user_id)
+        movie_id = int(movie_id)
+        score = int(score)
+
+        # We don't care about the timestamp, so we'll ignore this
+
+        rating = Rating(user_id=user_id,
+                        movie_id=movie_id,
+                        score=score)
+
+        # We need to add to the session or it won't ever be stored
+        db.session.add(rating)
+
+        # provide some sense of progress
+        if i % 1000 == 0:
+            print(i)
+
+            # An optimization: if we commit after every add, the database
+            # will do a lot of work committing each record. However, if we
+            # wait until the end, on computers with smaller amounts of
+            # memory, it might thrash around. By committing every 1,000th
+            # add, we'll strike a good balance.
+
+            db.session.commit()
+
+    # Once we're done, we should commit our work
+    db.session.commit()
+
+
+# defined to prevent error when creating user_id
+# queries users to find the maximum id, and then sets our sequence next value to 
+# be one more than that max to maintain integrity of database sequencing
 def set_val_user_id():
     """Set value for the next user_id after seeding database"""
 
@@ -93,7 +143,10 @@ if __name__ == "__main__":
     db.create_all()
 
     # Import different types of data
-    load_users()
-    load_movies()
-    load_ratings()
+    user_filename = "seed_data/u.user"
+    movie_filename = "seed_data/u.item"
+    rating_filename = "seed_data/u.data"
+    load_users(user_filename)
+    load_movies(movie_filename)
+    load_ratings(rating_filename)
     set_val_user_id()

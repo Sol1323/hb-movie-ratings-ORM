@@ -49,8 +49,10 @@ class Rating(db.Model):
     __tablename__ = "ratings"
 
     rating_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    movie_id = db.Column(db.Integer, nullable=False, unique=True)
-    user_id = db.Column(db.Integer, nullable=False, unique=True)
+    # 1 to many relationship because 1 movie can have many ratings
+    movie_id = db.Column(db.Integer, nullable=False, unique=False)
+    # 1 to many relationship because 1 user can rate many movies
+    user_id = db.Column(db.Integer, nullable=False, unique=False)
     score = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
