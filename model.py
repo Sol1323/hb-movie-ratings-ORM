@@ -50,10 +50,22 @@ class Rating(db.Model):
 
     rating_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     # 1 to many relationship because 1 movie can have many ratings
-    movie_id = db.Column(db.Integer, nullable=False, unique=False)
+    movie_id = db.Column(db.Integer,
+                        db.ForeignKey('movies.movie_id'))
     # 1 to many relationship because 1 user can rate many movies
-    user_id = db.Column(db.Integer, nullable=False, unique=False)
-    score = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer,
+                        db.ForeignKey('users.user_id'))
+    score = db.Column(db.Integer)
+
+    #Relationship to user
+    user = db.relationship("User",
+                            backref=db.backref("ratings",
+                                                order_by=rating_id))
+
+    #Relationship to movie
+    movie = db.relationship("Movie",
+                            backref=db.backref("movies",
+                                                order_by=rating_id))
 
     def __repr__(self):
         """Provide helpful representation when printed."""
