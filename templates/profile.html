@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <h2>{{ user.email }}</h2>
+
+    Link to your profile:
+      <a href="/users/{{ user.user_id }}"></a><br>
+    Email & ID:
+      {{ user.email }}({{ user.user_id }})<br>
+    Age:
+      {{ user.age }}<br>
+    Zipcode:
+      {{ user.zipcode }}<br>
+
+    ===========================================<br>
+
+    Rated Movies:<br>
+  
+    {% for rating in ratings %}
+      <li>
+          Link to Imdb:
+          <a href="{{ rating.movie.imdb_url }}"></a><br>
+          {{ rating.movie.title }} ({{ rating.movie.score }})
+      </li>
+      {% endfor %}
+
+  {% endblock %}

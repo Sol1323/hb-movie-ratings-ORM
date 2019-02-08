@@ -32,7 +32,13 @@ def user_list():
     users = User.query.all()
     return render_template("user_list.html", users=users)
 
+@app.route('/users/<int:user_id>')
+def show_profile(user_id):
 
+    user = User.query.get(user_id)
+    ratings = Rating.query.filter(Rating.user_id == user_id).all()
+    return render_template('profile.html', user=user,
+                            ratings=ratings)
 
 @app.route('/register', methods=['GET'])
 def register_form():
@@ -72,6 +78,28 @@ def register_process():
 def login_form():
 
     return render_template('login_form.html')
+
+@app.route('/login', methods=['POST'])
+def process_login():
+    email = request.form["email"]
+    password = request.form["password"]
+
+    user = User.query.filter(User.email == email).first()
+
+    if user and user.password == password:
+        flash(f"{email} succesfully logged in!")
+    else:
+        flash(f"Wrong email or password")
+        return redirect('/login')
+
+    session["user_id"] = user.user_id
+    return redirect('/')
+
+@app.route('/logout', methods=['GET'])
+def logout_user():
+    del session["user_id"]
+
+    return redirect('/')
 
 
 # @app.route
