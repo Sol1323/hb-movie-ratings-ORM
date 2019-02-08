@@ -93,11 +93,12 @@ def process_login():
         return redirect('/login')
 
     session["user_id"] = user.user_id
-    return redirect('/')
+    return redirect(f'/users/{user.user_id}')
 
 @app.route('/logout', methods=['GET'])
 def logout_user():
-    del session["user_id"]
+    if "user_id" in session:
+        del session["user_id"]
 
     return redirect('/')
 
