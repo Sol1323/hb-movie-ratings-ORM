@@ -34,6 +34,48 @@ def user_list():
 
 
 
+@app.route('/register', methods=['GET'])
+def register_form():
+
+    return render_template('register_form.html')
+
+
+@app.route('/register', methods=['POST'])
+def register_process():
+
+    # bracket notation since dictionary format
+    # we are not using request.form.get because of the object structure created by model.py (Class objects)
+    email = request.form["email"]
+    password = request.form["password"]
+    # converted to integer for easy addition to our database for that column type (property)
+    age = int(request.form["age"])
+    zipcode = request.form["zipcode"]
+
+    new_user = User(email=email, password=password, age=age, zipcode=zipcode)
+
+    # similar code as what would be entered into the terminal
+    # SQL Alchemy
+    new_user_email = User.query.filter(User.email == email).first()
+
+    # if new_user_email == None:
+    if not new_user_email:
+        db.session.add(new_user)
+        db.session.commit()
+        flash(f"User {email} added.")
+    else:
+        flash(f"{email} is already registered.")
+
+    return redirect('/login')
+
+
+@app.route('/login', methods=['GET'])
+def login_form():
+
+    return render_template('login_form.html')
+
+
+# @app.route
+
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
     # point that we invoke the DebugToolbarExtension
