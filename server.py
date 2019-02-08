@@ -49,7 +49,8 @@ def register_process():
     # SQL Alchemy
     new_user_email = User.query.filter(User.email == email).first()
 
-    if new_user_email == None:
+    # if new_user_email == None:
+    if not new_user_email:
         db.session.add(new_user)
         db.session.commit()
         flash(f"User {email} added.")
