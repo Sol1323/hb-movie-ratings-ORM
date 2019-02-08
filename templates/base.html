@@ -10,5 +10,8 @@
 
   {% block content %} put your content here {% endblock %}
 
+  {% for flash in get_flashed_messages() %}
+  {{ flash }}
+{% endfor %}
 </body>
 </html>
